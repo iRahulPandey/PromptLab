@@ -25,6 +25,8 @@ PromptLab consists of three primary components:
 6. **Adjustment**: Any needed refinements are made automatically
 7. **Response Generation**: The optimized prompt produces a high-quality response
 
+![alt text](<promptlab_workflow.png>)
+
 ## 📋 Features
 
 - **Content Type Detection** - Automatically classifies user queries into essay, email, technical, or creative writing requests
