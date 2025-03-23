@@ -1,0 +1,9 @@
+mcp[cli]>=0.0.29
+langchain>=0.1.0
+langchain-mcp-adapters>=0.0.8
+langchain-openai>=0.0.5
+rich>=10.0.0
+prompt_toolkit>=3.0.0
+langgraph>=0.0.20
+python-dotenv
+pyyaml

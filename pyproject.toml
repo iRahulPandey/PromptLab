@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "promptlab"
+version = "0.1.0"
+description = "PromptLab transforms basic user queries into optimized prompts for AI systems. It automatically detects content type (essays, emails, technical explanations, creative writing), applies tailored templates, and validates the enhanced prompts maintain the original intent. With its modular architecture and YAML-based template system, PromptCraft enables anyone to create and manage prompt templates without coding knowledge, ultimately producing higher-quality AI responses through better-structured inputs."
+authors = ["Rahul Pandey <rpandey1901@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+langchain-mcp-adapters = "^0.0.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
