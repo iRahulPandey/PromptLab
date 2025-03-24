@@ -12,8 +12,8 @@ PromptLab is built on a modular architecture with a YAML-based template system t
 PromptLab consists of three primary components:
 
 1. **Template System** (`prompt_templates.yaml`) - Structured templates for different content types
-2. **MCP Server** (`promptlab_server.py`) - Serves templates through a standardized protocol
-3. **Processing Client** (`promptlab_client.py`) - LangGraph workflow that handles the transformation process
+2. **MCP Server** (`promptlab_server.py`) - Serves templates through a standardized protocol with LangGraph Workflow
+3. **Processing Client** (`promptlab_client.py`) - Thin client that processes user query
 
 ### Workflow Process
 
