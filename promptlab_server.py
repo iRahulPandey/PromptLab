@@ -122,9 +122,10 @@ async def enhance_query(state: QueryState) -> QueryState:
     
     content_type = state['content_type']
     query = state['user_query']
+    current_llm = state.get('llm', llm)  # Use provided LLM or fall back to default
     
     # Extract key parameters using LLM if available
-    if llm and content_type == "creative":
+    if current_llm and content_type == "creative":
         # Extract topic and genre
         extract_prompt = f"""
         Extract from this query: "{query}"
@@ -143,7 +144,7 @@ async def enhance_query(state: QueryState) -> QueryState:
         """
         
         try:
-            response = await llm.ainvoke([HumanMessage(content=extract_prompt)])
+            response = await current_llm.ainvoke([HumanMessage(content=extract_prompt)])
             import json
             params = json.loads(response.content)
             topic = params.get("topic", "")
@@ -157,10 +158,51 @@ async def enhance_query(state: QueryState) -> QueryState:
                 if possible_genre in query.lower():
                     genre = possible_genre
                     break
+    elif current_llm and content_type == "email":
+        # Extract more detailed parameters for email
+        extract_prompt = f"""
+        Extract from this query: "{query}"
+        1. The recipient type (boss, colleague, friend, etc.)
+        2. The main topic of the email
+
+        Format your response as a JSON object with two fields:
+        recipient_type: The type of recipient
+        topic: The main topic of the email
+        
+        Example:
+        {{
+            "recipient_type": "boss",
+            "topic": "vacation request"
+        }}
+        """
+        
+        try:
+            response = await current_llm.ainvoke([HumanMessage(content=extract_prompt)])
+            import json
+            params = json.loads(response.content)
+            topic = params.get("topic", "")
+            recipient_type = params.get("recipient_type", "")
+        except Exception as e:
+            logger.warning(f"Error extracting parameters with LLM: {e}")
+            # Fallback to simple extraction
+            topic = query.replace("write", "").replace("email", "").replace("to", "").replace("about", "").strip()
+            recipient_type = "recipient"
+            # Try to find recipient in the query
+            if "to my" in query.lower():
+                recipient_parts = query.lower().split("to my")
+                if len(recipient_parts) > 1:
+                    recipient_type = recipient_parts[1].split()[0]
+            elif "to" in query.lower():
+                recipient_parts = query.lower().split("to")
+                if len(recipient_parts) > 1:
+                    possible_recipient = recipient_parts[1].split()[0]
+                    if possible_recipient not in ["the", "a", "an"]:
+                        recipient_type = possible_recipient
     else:
         # Simple parameter extraction for other types or when LLM not available
         topic = query.replace("write", "").replace("about", "").strip()
         genre = "story" if content_type == "creative" else ""
+        recipient_type = "recipient" if content_type == "email" else ""
     
     # Select template based on content type
     template_name = f"{content_type}_prompt"
@@ -173,12 +215,6 @@ async def enhance_query(state: QueryState) -> QueryState:
         params = {"topic": topic}
         
         if content_type == "email":
-            # Extract recipient type
-            recipient_type = "recipient"
-            if "to my" in query.lower():
-                recipient_parts = query.lower().split("to my")
-                if len(recipient_parts) > 1:
-                    recipient_type = recipient_parts[1].split()[0]
             params["recipient_type"] = recipient_type
             
         elif content_type == "technical":
@@ -187,12 +223,74 @@ async def enhance_query(state: QueryState) -> QueryState:
         elif content_type == "creative":
             params["genre"] = genre
         
+        # Apply transformations if present in the template
+        if 'transformations' in template:
+            for transform in template['transformations']:
+                transform_name = transform['name']
+                transform_expr = transform['value']
+                
+                try:
+                    # Handle conditional expressions (if/else)
+                    if "if" in transform_expr and "else" in transform_expr:
+                        # Parse the conditional expression
+                        condition_parts = transform_expr.split(" if ")
+                        if len(condition_parts) == 2:
+                            true_value = condition_parts[0].strip().strip('"\'')
+                            condition_else_parts = condition_parts[1].split(" else ")
+                            if len(condition_else_parts) == 2:
+                                condition = condition_else_parts[0].strip()
+                                false_value = condition_else_parts[1].strip().strip('"\'')
+                                
+                                # Create a safe evaluation environment
+                                eval_locals = {}
+                                for param_name, param_value in params.items():
+                                    if isinstance(param_value, str):
+                                        eval_locals[param_name] = param_value.lower()
+                                    else:
+                                        eval_locals[param_name] = param_value
+                                
+                                # Evaluate the condition
+                                try:
+                                    condition_result = eval(condition, {"__builtins__": {}}, eval_locals)
+                                    params[transform_name] = true_value if condition_result else false_value
+                                except Exception as e:
+                                    logger.error(f"Error evaluating condition '{condition}': {e}")
+                                    # Use a default value
+                                    params[transform_name] = false_value
+                    else:
+                        # For simple expressions without conditionals
+                        params[transform_name] = transform_expr
+                except Exception as e:
+                    logger.error(f"Error applying transformation '{transform_name}': {e}")
+                    # Set a default value to prevent template formatting errors
+                    if transform_name == "formality":
+                        params[transform_name] = "formal" if recipient_type in ['boss', 'supervisor', 'manager', 'client'] else "semi-formal"
+                    elif transform_name == "tone":
+                        params[transform_name] = "respectful and professional" if recipient_type in ['boss', 'supervisor', 'manager', 'client'] else "friendly but professional"
+                    else:
+                        params[transform_name] = "default"
+        
         # Format the template - handle any missing parameters
         try:
+            logger.info(f"Formatting template with parameters: {params}")
             enhanced_query = template['template'].format(**params)
         except KeyError as e:
             logger.error(f"Missing parameter for template: {e}")
-            enhanced_query = f"Write a {content_type} about {topic}"
+            # Try to add the missing parameter with a default value
+            missing_param = str(e).strip("'")
+            if missing_param == "formality":
+                params["formality"] = "formal" if recipient_type in ['boss', 'supervisor', 'manager', 'client'] else "semi-formal"
+            elif missing_param == "tone":
+                params["tone"] = "respectful and professional" if recipient_type in ['boss', 'supervisor', 'manager', 'client'] else "friendly but professional"
+            else:
+                params[missing_param] = "appropriate"
+            
+            try:
+                enhanced_query = template['template'].format(**params)
+            except Exception as nested_e:
+                logger.error(f"Error after adding default parameter: {nested_e}")
+                enhanced_query = f"Write a {content_type} about {topic}"
+                
         except Exception as e:
             logger.error(f"Error applying template: {e}")
             enhanced_query = f"Write a {content_type} about {topic}"
