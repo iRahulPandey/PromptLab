@@ -21,7 +21,7 @@ The system consists of three main components:
 
 ### Workflow Process
 
-![PromptLab Workflow](promptlab_workflow.png)
+![PromptLab Workflow](promptlab_architecture.png)
 
 1. **Prompt Registration**: Register prompt templates in MLflow with versioning and aliasing
 2. **Prompt Loading**: Server loads all available prompts from MLflow at startup
