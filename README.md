@@ -1,53 +1,83 @@
-# PromptLab: AI Query Enhancement Engine
+# PromptLab: AI Query Enhancement with MLflow Integration
 
-PromptLab transforms basic user queries into optimized prompts for AI systems. It automatically detects content type (essays, emails, technical explanations, creative writing), applies tailored templates, and validates that enhanced prompts maintain the original intent.
+PromptLab is an intelligent system that transforms basic user queries into optimized prompts for AI systems using MLflow Prompt Registry. It dynamically matches user requests to the most appropriate prompt template and applies it with extracted parameters.
 
 ## 🔍 Overview
 
-PromptLab is built on a modular architecture with a YAML-based template system that enables anyone to create and manage prompt templates without coding knowledge. The system ultimately produces higher-quality AI responses through better-structured inputs.
+PromptLab combines MLflow Prompt Registry with dynamic prompt matching to create a powerful, flexible system for prompt engineering:
 
+- **Centralized Prompt Management**: Store, version, and manage prompts in MLflow
+- **Dynamic Matching**: Intelligently match user queries to the best prompt template
+- **Version Control**: Track prompt history with production and archive aliases
+- **Extensible**: Easily add new prompt types without code changes
 
 ## 🏗️ Architecture
 
-PromptLab consists of three primary components:
+The system consists of three main components:
 
-1. **Template System** (`prompt_templates.yaml`) - Structured templates for different content types
-2. **MCP Server** (`promptlab_server.py`) - Serves templates through a standardized protocol with LangGraph Workflow
-3. **Processing Client** (`promptlab_client.py`) - Thin client that processes user query
+1. **Prompt Registry** (`register_prompts.py`) - Tool for registering and managing prompts in MLflow
+2. **Server** (`promptlab_server.py`) - Server with dynamic prompt matching and LangGraph workflow
+3. **Client** (`promptlab_client.py`) - Lightweight client for processing user queries
 
 ### Workflow Process
 
-1. **Query Input**: User submits a natural language query
-2. **Classification**: System determines the content type (essay, email, etc.)
-3. **Parameter Extraction**: Key parameters are identified (topic, audience, etc.)
-4. **Template Application**: The appropriate template is retrieved and filled
-5. **Validation**: The enhanced prompt is checked against the original intent
-6. **Adjustment**: Any needed refinements are made automatically
-7. **Response Generation**: The optimized prompt produces a high-quality response
+![PromptLab Workflow](promptlab_workflow.png)
 
-![alt text](<promptlab_workflow.png>)
+1. **Prompt Registration**: Register prompt templates in MLflow with versioning and aliasing
+2. **Prompt Loading**: Server loads all available prompts from MLflow at startup
+3. **Query Submission**: User submits a natural language query via the client
+4. **Intelligent Matching**: LLM analyzes the query and selects the most appropriate prompt template
+5. **Parameter Extraction**: System extracts required parameters from the query
+6. **Template Application**: Selected template is applied with extracted parameters
+7. **Validation & Adjustment**: Enhanced prompt is validated and adjusted if needed
+8. **Response Generation**: Optimized prompt produces a high-quality response
 
-## 📋 Features
+## 📂 Code Structure
 
-- **Content Type Detection** - Automatically classifies user queries into essay, email, technical, or creative writing requests
-- **Parameter Extraction** - Intelligently extracts key parameters like topics, recipients, and audience levels
-- **Template Library** - Pre-configured templates for common content types with structured guidance
-- **Validation System** - Ensures enhanced prompts maintain the original user intent
-- **Feedback Loop** - Adjusts prompts when validation identifies misalignments
-- **Modular Design** - MCP server can be plugged into any LLM system
-- **Non-Technical Management** - Templates can be updated without coding knowledge
+```
+promptlab/
+├── promptlab_server.py            # Main server with LangGraph workflow
+├── promptlab_client.py            # Client for processing queries
+├── register_prompts.py            # MLflow prompt management tool
+├── requirements.txt               # Project dependencies
+├── advanced_prompts.json          # Additional prompt templates
+└── README.md                      # Project documentation
+```
+
+### Core Components:
+
+#### `register_prompts.py`
+- **Purpose**: Manages prompts in MLflow Registry
+- **Key Functions**:
+  - `register_prompt()`: Register a new prompt or version
+  - `update_prompt()`: Update an existing prompt (archives previous production)
+  - `list_prompts()`: List all registered prompts
+  - `register_from_file()`: Register multiple prompts from JSON
+  - `register_sample_prompts()`: Initialize with standard prompts
+
+#### `promptlab_server.py`
+- **Purpose**: Processes queries using LangGraph workflow
+- **Key Components**:
+  - `load_all_prompts()`: Loads prompts from MLflow
+  - `match_prompt()`: Matches queries to appropriate templates
+  - `enhance_query()`: Applies selected template
+  - `validate_query()`: Validates enhanced queries
+  - `LangGraph workflow`: Orchestrates the query enhancement process
+
+#### `promptlab_client.py`
+- **Purpose**: Provides user interface to the service
+- **Key Features**:
+  - Process queries with enhanced prompts
+  - List available prompts
+  - Display detailed prompt matching information
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- Python 3.8+
-- Dependencies:
-  - `mcp[cli]`
-  - `langchain-openai`
-  - `langgraph>=0.0.20`
-  - `python-dotenv`
-  - `pyyaml`
+- Python 3.12
+- Dependencies in `requirements.txt`
+- OpenAI API key for LLM capabilities
 
 ### Installation
 
@@ -59,105 +89,197 @@ cd PromptLab
 # Install dependencies
 pip install -r requirements.txt
 
-# Set up environment variables
-cp .env
-# Edit .env to add your OpenAI API key
+# Set environment variables
+export OPENAI_API_KEY="your-openai-api-key"
 ```
 
-### Usage
+### Registering Prompts
 
-1. Start by running the server:
+Before using PromptLab, you need to register prompts in MLflow:
 
 ```bash
-# The server loads templates from prompt_templates.yaml
+# Register sample prompts (essay, email, technical, creative)
+python register_prompts.py register-samples
+
+# Register additional prompt types (recommended)
+python register_prompts.py register-file --file advanced_prompts.json
+
+# Verify registered prompts
+python register_prompts.py list
+```
+
+### Running the Server
+
+```bash
+# Start the server
 python promptlab_server.py
 ```
 
-2. Run the client with your query:
+### Using the Client
 
 ```bash
-python promptlab_client.py "Write an essay about climate change"
+# Process a query
+python promptlab_client.py "Write a blog post about machine learning"
+
+# List available prompts
+python promptlab_client.py --list
+
+# Enable verbose output
+python promptlab_client.py --verbose "Create a presentation on climate change"
 ```
 
-3. The system will output:
-   - Original query
-   - Classified content type
-   - Enhanced prompt
-   - Validation result
-   - Final response
+## 📋 Prompt Management
 
-## 📝 Template System
+### Available Prompt Types
 
-Templates are defined in `prompt_templates.yaml` using a structured format:
+PromptLab supports a wide range of prompt types:
 
-```yaml
-templates:
-  essay_prompt:
-    description: "Generate an optimized prompt template for writing essays."
-    template: |
-      Write a well-structured essay on {topic} that includes:
-      - A compelling introduction that provides context and states your thesis
-      ...
-    parameters:
-      - name: topic
-        type: string
-        description: The topic of the essay
-        required: true
+| Prompt Type | Description | Example Use Case |
+|------------|-------------|-----------------|
+| essay_prompt | Academic writing | Research papers, analyses |
+| email_prompt | Email composition | Professional communications |
+| technical_prompt | Technical explanations | Concepts, technologies |
+| creative_prompt | Creative writing | Stories, poems, fiction |
+| code_prompt | Code generation | Functions, algorithms |
+| summary_prompt | Content summarization | Articles, documents |
+| analysis_prompt | Critical analysis | Data, texts, concepts |
+| qa_prompt | Question answering | Context-based answers |
+| social_media_prompt | Social media content | Platform-specific posts |
+| blog_prompt | Blog article writing | Online articles |
+| report_prompt | Formal reports | Business, technical reports |
+| letter_prompt | Formal letters | Cover, recommendation letters |
+| presentation_prompt | Presentation outlines | Slides, talks |
+| review_prompt | Reviews | Products, media, services |
+| comparison_prompt | Comparisons | Products, concepts, options |
+| instruction_prompt | How-to guides | Step-by-step instructions |
+| custom_prompt | Customizable template | Specialized use cases |
+
+### Registering New Prompts
+
+You can register new prompts in several ways:
+
+#### 1. From Command Line
+
+```bash
+python register_prompts.py register \
+  --name "new_prompt" \
+  --template "Your template with {{ variables }}" \
+  --message "Initial version" \
+  --tags '{"type": "custom", "task": "specialized"}'
 ```
 
-### Adding New Templates
+#### 2. From a Template File
 
-1. Open `prompt_templates.yaml`
-2. Add a new template following the existing format
-3. Define parameters and transformations
-4. Define a tool on server side and load the template
-5. The server will automatically load the new template on restart
+```bash
+# Create a text file with your template
+echo "Template content with {{ variables }}" > template.txt
 
-## 🛠️ Advanced Configuration
-
-### Environment Variables
-
-- `TEMPLATES_FILE` - Path to the templates YAML file (default: `prompt_templates.yaml`)
-- `OPENAI_API_KEY` - Your OpenAI API key for LLM access
-- `MODEL_NAME` - The OpenAI model to use (default: `gpt-3.5-turbo`)
-- `PERSONA_SERVER_SCRIPT` - Path to the server script (default: `promptlab_server.py`)
-
-### Custom Transformations
-
-Templates can include transformations that dynamically adjust parameters:
-
-```yaml
-transformations:
-  - name: formality
-    value: "formal if recipient_type.lower() in ['boss', 'client'] else 'semi-formal'"
+# Register using the file
+python register_prompts.py register \
+  --name "long_prompt" \
+  --template template.txt \
+  --message "Complex template"
 ```
 
-## 📊 Example Outputs
+#### 3. From a JSON File
 
-### Input Query
-> "Write something about renewable energy for my professor"
+Create a JSON file with multiple prompts:
 
-### Enhanced Prompt
+```json
+{
+  "prompts": [
+    {
+      "name": "prompt_name",
+      "template": "Template with {{ variables }}",
+      "commit_message": "Description",
+      "tags": {"type": "category", "task": "purpose"}
+    }
+  ]
+}
 ```
-Write a well-structured essay on renewable energy that includes:
-- A compelling introduction that provides context and states your thesis
-- 2-3 body paragraphs, each with a clear topic sentence and supporting evidence
-- Logical transitions between paragraphs that guide the reader
-- A conclusion that synthesizes your main points and offers final thoughts
 
-The essay should be informative, well-reasoned, and demonstrate critical thinking.
+Then register them:
+
+```bash
+python register_prompts.py register-file --file your_prompts.json
 ```
 
-## 📄 License
+### Updating Existing Prompts
 
-MIT License - See LICENSE file for details
+When you update an existing prompt, the system automatically:
+1. Archives the previous production version
+2. Sets the new version as production
 
-## 🤝 Contributing
+```bash
+python register_prompts.py update \
+  --name "essay_prompt" \
+  --template "New improved template with {{ variables }}" \
+  --message "Enhanced clarity and structure"
+```
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+### Viewing Prompt Details
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+```bash
+# List all prompts
+python register_prompts.py list
+
+# View detailed information about a specific prompt
+python register_prompts.py details --name "essay_prompt"
+```
+
+## 🛠️ Advanced Usage
+
+### Template Variables
+
+Templates use variables in `{{ variable }}` format:
+
+```
+Write a {{ formality }} email to my {{ recipient_type }} about {{ topic }} that includes:
+- A clear subject line
+- Appropriate greeting
+...
+```
+
+When matching a query, the system automatically extracts values for these variables.
+
+### Production and Archive Aliases
+
+Each prompt can have different versions with aliases:
+- **production**: The current active version (used by default)
+- **archived**: Previous production versions
+
+This allows for:
+- Rolling back to previous versions if needed
+- Tracking the history of prompt changes
+
+### Custom Prompt Registration
+
+For specialized use cases, you can create highly customized prompts:
+
+```bash
+python register_prompts.py register \
+  --name "specialized_prompt" \
+  --template "You are a {{ role }} with expertise in {{ domain }}. Create a {{ document_type }} about {{ topic }} that demonstrates {{ quality }}." \
+  --message "Specialized template" \
+  --tags '{"type": "custom", "task": "specialized", "domain": "finance"}'
+```
+
+## 🔧 Troubleshooting
+
+### No Matching Prompt Found
+
+If the system can't match a query to any prompt template, it will:
+1. Log a message that no match was found
+2. Use the original query without enhancement
+3. Still generate a response
+
+You can add more diverse prompt templates to improve matching.
+
+### LLM Connection Issues
+
+If the LLM service is unavailable, the system falls back to:
+1. Keyword-based matching for prompt selection
+2. Simple parameter extraction
+3. Basic prompt enhancement
+
+This ensures the system remains functional even without LLM access.

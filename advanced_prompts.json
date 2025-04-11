@@ -1,0 +1,82 @@
+{
+    "prompts": [
+      {
+        "name": "code_prompt",
+        "template": "Write clean, well-documented {{ language }} code that accomplishes the following task:\n\n{{ task }}\n\nYour code should:\n- Follow {{ language }} best practices and conventions\n- Include helpful comments explaining complex sections\n- Handle edge cases and errors appropriately\n- Be efficient and well-structured\n- Include example usage that demonstrates how to use the code\n\nOptional requirements:\n{{ requirements }}",
+        "commit_message": "Code writing prompt for multiple languages",
+        "tags": {"task": "coding", "type": "code"}
+      },
+      {
+        "name": "summary_prompt",
+        "template": "Provide a concise summary of the following {{ content_type }}:\n\n{{ content }}\n\nYour summary should:\n- Be approximately {{ length }} in length\n- Capture the most important information and key points\n- Maintain the original meaning and intent\n- Be written in a clear, objective tone\n- Exclude unnecessary details and examples\n- Present information in order of importance",
+        "commit_message": "General summary prompt for various content types",
+        "tags": {"task": "summarization", "type": "summary"}
+      },
+      {
+        "name": "analysis_prompt",
+        "template": "Provide a thorough analysis of the following {{ content_type }} on {{ subject }}:\n\n{{ content }}\n\nYour analysis should include:\n- A brief overview of the main points or arguments\n- An examination of the key themes, patterns, or trends\n- Evaluation of the strengths and weaknesses\n- Consideration of different perspectives or interpretations\n- Assessment of the evidence or reasoning presented\n- Implications or significance of the content\n- Your own critical insights (if appropriate)\n\nOrganize your analysis in a logical structure with clear sections.",
+        "commit_message": "Analytical prompt for in-depth examination",
+        "tags": {"task": "analysis", "type": "analysis"}
+      },
+      {
+        "name": "qa_prompt",
+        "template": "Answer the following question based on the provided context. If the answer cannot be determined from the context, say so clearly.\n\nContext:\n{{ context }}\n\nQuestion:\n{{ question }}\n\nYour answer should:\n- Be comprehensive yet concise\n- Cite specific information from the context to support your answer\n- Use simple, clear language\n- Be factual and objective\n- Address all parts of the question\n- Avoid introducing information not present in the context",
+        "commit_message": "Question-answering prompt with context",
+        "tags": {"task": "question answering", "type": "qa"}
+      },
+      {
+        "name": "social_media_prompt",
+        "template": "Create {{ count }} engaging social media posts for {{ platform }} about {{ topic }}.\n\nThe posts should:\n- Be appropriate in length for {{ platform }} (within character limits)\n- Have a {{ tone }} tone of voice\n- Include relevant hashtags where appropriate\n- Incorporate attention-grabbing elements (questions, statistics, hooks)\n- Include a clear call-to-action\n- Appeal to our target audience: {{ audience }}\n\nAdditional requirements:\n{{ requirements }}",
+        "commit_message": "Social media post creation prompt",
+        "tags": {"task": "marketing", "type": "social_media"}
+      },
+      {
+        "name": "blog_prompt",
+        "template": "Write a comprehensive blog post about {{ topic }} with the title \"{{ title }}\".\n\nThe blog post should:\n- Begin with an engaging introduction that hooks the reader\n- Include {{ num_sections }} main sections with appropriate subheadings\n- Incorporate relevant facts, statistics, or examples to support key points\n- Be written in a {{ tone }} tone to appeal to {{ audience }}\n- Have a length of approximately {{ length }} words\n- Include a strong conclusion with key takeaways\n- End with a compelling call-to-action\n\nAdditional requirements:\n{{ requirements }}",
+        "commit_message": "Blog post writing prompt",
+        "tags": {"task": "writing", "type": "blog"}
+      },
+      {
+        "name": "report_prompt",
+        "template": "Create a professional {{ report_type }} report on {{ topic }} for {{ audience }}.\n\nThe report should include:\n\n1. Executive Summary\n   - Brief overview of purpose, methods, findings, and recommendations\n\n2. Introduction\n   - Clear statement of purpose and scope\n   - Background information on {{ topic }}\n   - Methodology used (if applicable)\n\n3. Main Findings/Body\n   - Organized into logical sections with headings\n   - Data presented clearly with appropriate analysis\n   - Visual elements (charts, graphs) where helpful\n\n4. Conclusions\n   - Summary of key insights\n   - Implications of findings\n\n5. Recommendations\n   - Actionable next steps\n   - Prioritized by importance/urgency\n\nThe report should be:\n- Written in a {{ tone }} tone\n- Approximately {{ length }} in length\n- Well-structured with clear headings and subheadings\n- Objective and evidence-based\n\nAdditional requirements:\n{{ requirements }}",
+        "commit_message": "Professional report writing prompt",
+        "tags": {"task": "writing", "type": "report"}
+      },
+      {
+        "name": "letter_prompt",
+        "template": "Write a {{ letter_type }} letter from {{ sender }} to {{ recipient }} regarding {{ subject }}.\n\nThe letter should:\n- Use proper business/formal letter format\n- Begin with an appropriate salutation\n- Clearly state the purpose in the opening paragraph\n- Provide all necessary details in the body paragraphs\n- Maintain a {{ tone }} tone throughout\n- Include a specific request or desired outcome\n- End with an appropriate closing and signature line\n- Be concise and to the point\n\nAdditional context or requirements:\n{{ requirements }}",
+        "commit_message": "Formal letter writing prompt",
+        "tags": {"task": "writing", "type": "letter"}
+      },
+      {
+        "name": "presentation_prompt",
+        "template": "Create an outline for a {{ duration }} presentation on {{ topic }} for {{ audience }}.\n\nThe presentation should include:\n\n1. Introduction ({{ intro_time }} minutes)\n   - Attention-grabbing opening\n   - Brief overview of the topic\n   - Clear statement of the main message or purpose\n\n2. Main Content (structured in {{ num_sections }} key sections)\n   - Section 1: [First key point/area]\n   - Section 2: [Second key point/area]\n   - Section 3: [Third key point/area]\n   - [Additional sections as needed]\n\n3. Conclusion ({{ conclusion_time }} minutes)\n   - Summary of key points\n   - Reinforcement of main message\n   - Call-to-action or next steps\n   - Q&A preparation\n\nFor each section, include:\n- Key talking points\n- Supporting evidence or examples\n- Visual aid suggestions\n- Potential audience engagement elements\n\nAdditional presentation requirements:\n{{ requirements }}",
+        "commit_message": "Presentation outline creation prompt",
+        "tags": {"task": "presenting", "type": "presentation"}
+      },
+      {
+        "name": "review_prompt",
+        "template": "Write a {{ review_type }} review of {{ subject }} for {{ audience }}.\n\nYour review should include:\n\n1. Introduction\n   - Brief overview of {{ subject }}\n   - Context or background information\n   - Your overall assessment (without specific details yet)\n\n2. Summary/Description\n   - Objective description of key features, plot, components, etc.\n   - No spoilers or opinion in this section\n\n3. Analysis\n   - Detailed assessment of strengths and weaknesses\n   - Specific examples to support your points\n   - Comparison to similar products/works (if relevant)\n\n4. Evaluation\n   - Your rating (if applicable: {{ rating_system }})\n   - Who would benefit from/enjoy this\n   - Value proposition or key takeaway\n\n5. Conclusion\n   - Final recommendation\n   - Summary of key points\n\nThe review should be:\n- Written in a {{ tone }} tone\n- Approximately {{ length }} in length\n- Balanced and fair, even if overall assessment is negative\n- Specific rather than general in its critique\n\nAdditional requirements:\n{{ requirements }}",
+        "commit_message": "Comprehensive review writing prompt",
+        "tags": {"task": "reviewing", "type": "review"}
+      },
+      {
+        "name": "custom_prompt",
+        "template": "You are a {{ role }} specializing in {{ specialty }}. Your task is to {{ action }} regarding {{ topic }} for {{ audience }}.\n\nApproach this task with the following considerations:\n- {{ consideration_1 }}\n- {{ consideration_2 }}\n- {{ consideration_3 }}\n\nYour response should be in the format of {{ format }} and should be approximately {{ length }} in length. The tone should be {{ tone }}.\n\nAdditional context or requirements:\n{{ requirements }}",
+        "commit_message": "Highly customizable general-purpose prompt",
+        "tags": {"task": "custom", "type": "custom"}
+      },
+      {
+        "name": "comparison_prompt",
+        "template": "Provide a detailed comparison between {{ item_1 }} and {{ item_2 }} in terms of {{ aspects }}.\n\nYour comparison should include:\n\n1. Brief Introduction\n   - Overview of {{ item_1 }} and {{ item_2 }}\n   - Why this comparison matters\n   - Your comparison framework\n\n2. Direct Comparison\n   - Create a point-by-point analysis of key aspects\n   - Highlight similarities and differences\n   - Use specific examples, facts, or features\n\n3. Strengths and Weaknesses\n   - Analyze the pros and cons of each\n   - Consider different use cases or scenarios\n\n4. Situational Recommendations\n   - Explain which is better for different situations/users\n   - Provide context for when each option excels\n\n5. Conclusion\n   - Summary of key differences\n   - Overall assessment (if requested)\n\nThe comparison should be:\n- Balanced and objective\n- Based on factual information\n- Well-structured with clear organization\n- Comprehensive yet focused on relevant aspects\n\nAdditional requirements:\n{{ requirements }}",
+        "commit_message": "Comparison analysis prompt",
+        "tags": {"task": "analysis", "type": "comparison"}
+      },
+      {
+        "name": "instruction_prompt",
+        "template": "Create a clear, step-by-step guide on how to {{ task }} for {{ audience }}.\n\nYour instructions should include:\n\n1. Introduction\n   - Brief explanation of what {{ task }} is\n   - Why it's important or useful\n   - What the end result will be\n   - Any prerequisites or materials needed\n\n2. Preparation Steps\n   - What to gather or prepare before starting\n   - Any safety precautions or important warnings\n   - How to set up the environment or workspace\n\n3. Main Instructions\n   - Numbered, sequential steps\n   - Clear, direct language for each step\n   - Specific details about techniques or methods\n   - Visual cues or indicators of progress\n\n4. Troubleshooting Tips\n   - Common mistakes or issues\n   - How to identify and fix problems\n   - What to do if something goes wrong\n\n5. Conclusion\n   - How to know when the task is complete\n   - Next steps or related skills\n   - Practice suggestions or variations\n\nThe instructions should be:\n- Written in a {{ tone }} tone\n- Appropriately detailed for {{ skill_level }} users\n- Structured for easy scanning and reference\n- Clear enough that someone could follow without additional help\n\nAdditional requirements:\n{{ requirements }}",
+        "commit_message": "Instructional guide prompt",
+        "tags": {"task": "instructional", "type": "guide"}
+      }
+    ]
+  }
